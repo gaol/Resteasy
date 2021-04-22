@@ -1,5 +1,6 @@
 package org.jboss.resteasy.plugins.providers.jsonb;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,7 +27,6 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.io.input.ProxyInputStream;
 import org.jboss.resteasy.plugins.providers.jsonb.i18n.Messages;
 import org.jboss.resteasy.plugins.server.servlet.ResteasyContextParameters;
 import org.jboss.resteasy.spi.ResteasyConfiguration;
@@ -93,7 +93,7 @@ public class JsonBindingProvider extends AbstractJsonBindingProvider
       }
    }
 
-   private class EmptyCheckInputStream extends ProxyInputStream
+   private class EmptyCheckInputStream extends FilterInputStream
    {
       boolean read = false;
       boolean empty = false;
@@ -104,6 +104,23 @@ public class JsonBindingProvider extends AbstractJsonBindingProvider
       }
 
       @Override
+      public int read() throws IOException {
+         final int b = in.read();
+         afterRead(b != -1 ? 1 : -1);
+         return b;
+      }
+      @Override
+      public int read(final byte[] bts) throws IOException {
+         final int n = in.read(bts);
+         afterRead(n);
+         return n;
+      }
+      @Override
+      public int read(final byte[] bts, final int off, final int len) throws IOException {
+         final int n = in.read(bts, off, len);
+         afterRead(n);
+         return n;
+      }
       protected synchronized void afterRead(final int n) throws IOException {
          if (!read && n <= 0) {
             empty = true;
