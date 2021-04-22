@@ -1,6 +1,5 @@
 package org.jboss.resteasy.client.core.executors;
 
-import org.apache.commons.io.output.DeferredFileOutputStream;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
